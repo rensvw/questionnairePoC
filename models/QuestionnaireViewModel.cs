@@ -1,34 +1,15 @@
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
+
 
 public class QuestionnaireViewModel
 {
     public int Id { get; set; }
     public string Category {get; set;}
     public string Version {get; set;}
-    public Collection<ChildFormlySchema> Schema { get; set; }
+    public Collection<QuestionFormly> Schema { get; set; }
 }
 
-public class ChildFormlySchema
-{
-    public int Id { get; set; }
-    public string Key { get; set; }
-    public string Type { get; set; }
-    public Collection<TemplateOptionsFormlyModel> TemplateOptions { get; set; }
-    public Validation Validation { get; set; }
-    public string Version { get; set; }
-    public string HideExpression { get; set; }
-    public Collection<FieldGroup> FieldGroup { get; set; }
-}
-
-public class FieldGroup
-{
-    public int Id { get; set; }
-    public string Key { get; set; }
-    public string Type { get; set; }
-    public Collection<DefaultValue> DefaultValue { get; set; }
-    public TemplateOptionsFormlyModel TemplateOptions { get; set; }
-    public FieldArray FieldArray { get; set; }
-}
 
 public class FormlyOption
 {
@@ -37,7 +18,7 @@ public class FormlyOption
     public string Label { get; set; }
 }
 
-public class TemplateOptionsFormlyModel
+public class TemplateFormly
 {
     public int Id { get; set; }
     public string Label { get; set; }
@@ -47,9 +28,26 @@ public class TemplateOptionsFormlyModel
     public string Placeholder { get; set; }
     public string Description { get; set; }
     public bool Required { get; set; }
+
+    public string HideExpression {get; set;}
     public Collection<FormlyOption> Options { get; set; }
-    public bool? multiple { get; set; }
+    public bool multiple { get; set; }
     public string selectAllOption { get; set; }
+
+    public FormlyValidation Validation { get; set; }
+    public Dictionary<string,string> ExpressionProperties {get; set;}
+}
+
+public class QuestionFormly
+{
+    public int Id { get; set; }
+    public string Key {get; set;}
+    public string Type { get; set; }
+    public string Version { get; set; }
+    public Collection<TemplateFormly> TemplateOptions {get; set;}
+    public string HideExpression {get; set;}
+    public FormlyValidation Validation { get; set; }
+    public Dictionary<string,string> ExpressionProperties {get; set;}
 }
 
 public class Messages
@@ -58,35 +56,8 @@ public class Messages
     public string Required { get; set; }
 }
 
-public class Validation
+public class FormlyValidation
 {
     public int Id { get; set; }
     public Messages Messages { get; set; }
-}
-
-public class DefaultValue
-{
-    public int Id { get; set; }
-}
-
-
-public class ValidationFormly
-{
-    public int Id { get; set; }
-    public Messages Messages { get; set; }
-}
-
-public class FieldGroup2
-{
-    public int Id { get; set; }
-    public string Type { get; set; }
-    public string Key { get; set; }
-    public TemplateOptionsFormlyModel TemplateOptions { get; set; }
-    public ValidationFormly Validation { get; set; }
-}
-
-public class FieldArray
-{
-    public int Id { get; set; }
-    public Collection<FieldGroup2> FieldGroup { get; set; }
 }

@@ -12,7 +12,7 @@ namespace questionnaireBackend
 
         public QuestionnaireWrapper(QuestionnaireViewModel questionnaireViewModel){
             this._questionnaireViewModel = questionnaireViewModel;
-            this._questionnaireStoreModel = new QuestionnaireWrapper(questionnaireViewModel).GetStoreModel();
+           
         }
 
         public QuestionnaireWrapper(Questionnaire questionnaireStoreModel){
@@ -36,42 +36,40 @@ namespace questionnaireBackend
 
         public Questionnaire GetStoreModel()
         {
+            // create store model questionnaire
             Questionnaire questionnaire = new Questionnaire();
             questionnaire.Category = _questionnaireViewModel.Category;
             questionnaire.Version = _questionnaireViewModel.Version;
             questionnaire.Questions = new Collection<Question>();
-            questionnaire.QuestionRules = new Collection<QuestionRules>();
+            questionnaire.QuestionRules = new Collection<QuestionRule>();
 
-            foreach(ChildFormlySchema viewModelQuestion in _questionnaireViewModel.Schema){
+            // create stopre model questions and questionrules
+            foreach(QuestionFormly viewModelQuestion in _questionnaireViewModel.Schema){
                 Question question = new Question();
+                question.QuestionTemplate = new Collection<Template>();
+                QuestionRule questionRule = new QuestionRule();
+
                 question.Name = viewModelQuestion.Key;
                 question.Type = viewModelQuestion.Type;
                 question.Version = viewModelQuestion.Version;
 
-                foreach(TemplateOptionsFormlyModel template in viewModelQuestion.TemplateOptions){
-                    if(template.multiple == true){
-
-                        MultipleChoiceTemplate questionTemplate = new MultipleChoiceTemplate();
-
-                        questionTemplate.Description = template.Description;
-                        questionTemplate.InputType = template.Type;
-                        questionTemplate.Label = template.Label;
-                        questionTemplate.Language = template.Language;
-                        questionTemplate.Placeholder = template.Placeholder;
-                        questionTemplate.Version = template.Version;
-                        questionTemplate.SelectAllOption = template.selectAllOption;
-                        questionTemplate.Options = new Collection<MultipleChoiceOption>();
-
-                        foreach(FormlyOption option in template.Options){
-                            MultipleChoiceOption multipleChoiceOption = new MultipleChoiceOption();
-                            questionTemplate.Options.Add(multipleChoiceOption);
-                        }
-                       // questionnaire.Questions.Add(questionTemplate);
-
-                        
-
+                questionRule.Name = viewModelQuestion.Key;
+                questionRule.HideQuestion = viewModelQuestion.HideExpression;
+                
+                if(viewModelQuestion.ExpressionProperties != null){
+                    foreach(var y in viewModelQuestion.ExpressionProperties){
+                        ExpressionModel epressionModel = new ExpressionModel();
+                        epressionModel.Key = y.Key;
+                        epressionModel.Expression = y.Value;
+                        questionRule.ExpressionModel.Add(epressionModel);
                     }
-                    else{
+                }
+
+                foreach(TemplateFormly template in viewModelQuestion.TemplateOptions){
+                        // check if question is required
+                        questionRule.Required = template.Required;
+
+                        // Add all templateswith different languages to the template
                         Template questionTemplate = new Template();
                         questionTemplate.Description = template.Description;
                         questionTemplate.InputType = template.Type;
@@ -79,17 +77,27 @@ namespace questionnaireBackend
                         questionTemplate.Language = template.Language;
                         questionTemplate.Placeholder = template.Placeholder;
                         questionTemplate.Version = template.Version;
-                    }
-                    
-                    
+                        
+                        if(template.Options != null){
+                            questionTemplate.SelectAllOption = template.selectAllOption;
+                            questionTemplate.MultipleChoiceQuestion = template.multiple;
+                            questionTemplate.Options = new Collection<MultipleChoiceOption>();
 
+                            foreach(FormlyOption option in template.Options){
+                                MultipleChoiceOption multipleChoiceOption = new MultipleChoiceOption();
+                                questionTemplate.Options.Add(multipleChoiceOption);
+                            }
+                            question.QuestionTemplate.Add(questionTemplate);
+                        }
+                        else{
+                            question.QuestionTemplate.Add(questionTemplate);
+                        }
+                    }
+                    questionnaire.Questions.Add(question);
+                    questionnaire.QuestionRules.Add(questionRule);
                 }
 
-                
-
-                
-            }
-            throw new System.NotImplementedException();
+            return questionnaire;
         }
 
         public QuestionnaireViewModel GetViewModel()

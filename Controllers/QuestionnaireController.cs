@@ -107,7 +107,7 @@ namespace questionnaireBackend.Controllers
                 }
             }
 
-            return CreatedAtAction("GetQuestionnaire", new { id = questionnaire.Id }, questionnaire);
+            return CreatedAtAction("GetQuestionnaire", new { id = wrappedQuestionaire.Id }, wrappedQuestionaire);
         }
 
         // DELETE: api/Questionnaire/5
