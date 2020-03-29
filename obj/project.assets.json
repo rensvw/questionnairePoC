@@ -8237,7 +8237,7 @@
       "outputPath": "/home/rensvanw/development/questionnaireBackend/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/rensvanw/.nuget/NuGet/NuGet.Config"
+        "/home/rensvanw/.config/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "netcoreapp3.1"

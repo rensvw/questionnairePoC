@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using questionnaireBackend;
+using questionnaireBackend.wrapper;
 
 namespace questionnaireBackend.Controllers
 {
@@ -25,13 +26,11 @@ namespace questionnaireBackend.Controllers
         public async Task<ActionResult<IEnumerable<QuestionnaireViewModel>>> GetQuestionnaires()
         {
             var questionnaires = await _context.Questionnaire.ToListAsync();
-            var questionnaireViewModelList = new List<QuestionnaireViewModel>();
+            if (questionnaires == null) throw new ArgumentNullException(nameof(questionnaires));
 
-            foreach(Questionnaire questionnaire in questionnaires){
-                questionnaireViewModelList.Add(new QuestionnaireWrapper(questionnaire).GetViewModel());
-            }
-
-            return questionnaireViewModelList;
+            return questionnaires.Select(questionnaire => 
+                new QuestionnaireWrapper(questionnaire).GetViewModel())
+                .ToList();
         }
 
         // GET: api/Questionnaire/5
@@ -40,14 +39,14 @@ namespace questionnaireBackend.Controllers
         {
             var questionnaire = await _context.Questionnaire.FindAsync(id);
 
-            var wrappedQuestionaire = new QuestionnaireWrapper(questionnaire).GetViewModel();
 
             if (questionnaire == null)
             {
                 return NotFound();
             }
-
-            return wrappedQuestionaire;
+            
+            return new QuestionnaireWrapper(questionnaire).GetViewModel() ?? 
+                   throw new ArgumentNullException("id");
         }
 
         // PUT: api/Questionnaire/5
@@ -88,16 +87,17 @@ namespace questionnaireBackend.Controllers
         [HttpPost]
         public async Task<ActionResult<Questionnaire>> PostQuestionnaire(QuestionnaireViewModel questionnaire)
         {
-            var wrappedQuestionaire = new QuestionnaireWrapper(questionnaire).GetStoreModel();
+            var wrappedQuestionnaire = new QuestionnaireWrapper(questionnaire).GetStoreModel() 
+                                       ?? throw new ArgumentNullException("questionnaire");
 
-            _context.Questionnaire.Add(wrappedQuestionaire);
+            _context.Questionnaire.Add(wrappedQuestionnaire);
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
-                if (QuestionnaireExists(wrappedQuestionaire.Id))
+                if (QuestionnaireExists(wrappedQuestionnaire.Id))
                 {
                     return Conflict();
                 }
@@ -107,7 +107,7 @@ namespace questionnaireBackend.Controllers
                 }
             }
 
-            return CreatedAtAction("GetQuestionnaire", new { id = wrappedQuestionaire.Id }, wrappedQuestionaire);
+            return CreatedAtAction("GetQuestionnaire", new { id = wrappedQuestionnaire.Id }, wrappedQuestionnaire);
         }
 
         // DELETE: api/Questionnaire/5

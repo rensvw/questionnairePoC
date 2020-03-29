@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 
-namespace questionnaireBackend
+namespace questionnaireBackend.wrapper
 {
     public interface IQuestionnaireWrapper
     {
-        void SubstituteAnsweredQuestion(int QuestionId, string Answer);
-        List<int> GetAllQuestionsID();
+        void SubstituteAnsweredQuestion(int questionId, string answer);
+        List<int> GetAllQuestionsId();
         Questionnaire GetStoreModel();
         QuestionnaireViewModel GetViewModel();
 

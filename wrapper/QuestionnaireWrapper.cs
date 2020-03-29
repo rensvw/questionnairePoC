@@ -1,14 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 
-namespace questionnaireBackend
+namespace questionnaireBackend.wrapper
 {
     public class QuestionnaireWrapper : IQuestionnaireWrapper
     {
         private Questionnaire _questionnaireStoreModel = new Questionnaire();
-        private QuestionnaireViewModel _questionnaireViewModel = new QuestionnaireViewModel();
+        private readonly QuestionnaireViewModel _questionnaireViewModel = new QuestionnaireViewModel();
 
         public QuestionnaireWrapper(QuestionnaireViewModel questionnaireViewModel){
             this._questionnaireViewModel = questionnaireViewModel;
@@ -24,7 +22,7 @@ namespace questionnaireBackend
             throw new System.NotImplementedException();
         }
 
-        public List<int> GetAllQuestionsID()
+        public List<int> GetAllQuestionsId()
         {
             throw new System.NotImplementedException();
         }
@@ -37,54 +35,69 @@ namespace questionnaireBackend
         public Questionnaire GetStoreModel()
         {
             // create store model questionnaire
-            Questionnaire questionnaire = new Questionnaire();
-            questionnaire.Category = _questionnaireViewModel.Category;
-            questionnaire.Version = _questionnaireViewModel.Version;
-            questionnaire.Questions = new Collection<Question>();
-            questionnaire.QuestionRules = new Collection<QuestionRule>();
+            var questionnaire = new Questionnaire
+            {
+                Category = _questionnaireViewModel.Category,
+                Version = _questionnaireViewModel.Version,
+                Questions = new Collection<Question>(),
+                QuestionRules = new Collection<QuestionRule>()
+            };
 
             // create stopre model questions and questionrules
-            foreach(QuestionFormly viewModelQuestion in _questionnaireViewModel.Schema){
-                Question question = new Question();
-                question.QuestionTemplate = new Collection<Template>();
-                QuestionRule questionRule = new QuestionRule();
-
-                question.Name = viewModelQuestion.Key;
-                question.Type = viewModelQuestion.Type;
-                question.Version = viewModelQuestion.Version;
-
-                questionRule.Name = viewModelQuestion.Key;
-                questionRule.HideQuestion = viewModelQuestion.HideExpression;
+            foreach(var viewModelQuestion in _questionnaireViewModel.Schema){
+                var question = new Question
+                {
+                    QuestionTemplate = new Collection<Template>(),
+                    Name = viewModelQuestion.Key,
+                    Type = viewModelQuestion.Type,
+                    Version = viewModelQuestion.Version
+                };
+                
+                var questionRule = new QuestionRule
+                {
+                    ExpressionModel = new Collection<ExpressionModel>(),
+                    Name = viewModelQuestion.Key,
+                    HideQuestion = viewModelQuestion.HideExpression
+                };
                 
                 if(viewModelQuestion.ExpressionProperties != null){
-                    foreach(var y in viewModelQuestion.ExpressionProperties){
-                        ExpressionModel epressionModel = new ExpressionModel();
-                        epressionModel.Key = y.Key;
-                        epressionModel.Expression = y.Value;
-                        questionRule.ExpressionModel.Add(epressionModel);
+                    foreach(var (key, value) in viewModelQuestion.ExpressionProperties){
+                        var expressionModel = new ExpressionModel
+                        {
+                            Key = key, 
+                            Expression = value
+                        };
+                        questionRule.ExpressionModel.Add(expressionModel);
                     }
                 }
 
-                foreach(TemplateFormly template in viewModelQuestion.TemplateOptions){
+                foreach(var template in viewModelQuestion.TemplateOptions){
                         // check if question is required
                         questionRule.Required = template.Required;
 
                         // Add all templateswith different languages to the template
-                        Template questionTemplate = new Template();
-                        questionTemplate.Description = template.Description;
-                        questionTemplate.InputType = template.Type;
-                        questionTemplate.Label = template.Label;
-                        questionTemplate.Language = template.Language;
-                        questionTemplate.Placeholder = template.Placeholder;
-                        questionTemplate.Version = template.Version;
-                        
+                        var questionTemplate = new Template
+                        {
+                            Description = template.Description,
+                            InputType = template.Type,
+                            Label = template.Label,
+                            Language = template.Language,
+                            Placeholder = template.Placeholder,
+                            Version = template.Version
+                        };
+
                         if(template.Options != null){
+                            
                             questionTemplate.SelectAllOption = template.selectAllOption;
                             questionTemplate.MultipleChoiceQuestion = template.multiple;
                             questionTemplate.Options = new Collection<MultipleChoiceOption>();
 
-                            foreach(FormlyOption option in template.Options){
-                                MultipleChoiceOption multipleChoiceOption = new MultipleChoiceOption();
+                            foreach(var option in template.Options){
+                                var multipleChoiceOption = new MultipleChoiceOption
+                                {
+                                    Value = option.Value, 
+                                    Label = option.Label
+                                };
                                 questionTemplate.Options.Add(multipleChoiceOption);
                             }
                             question.QuestionTemplate.Add(questionTemplate);
@@ -92,10 +105,10 @@ namespace questionnaireBackend
                         else{
                             question.QuestionTemplate.Add(questionTemplate);
                         }
-                    }
-                    questionnaire.Questions.Add(question);
-                    questionnaire.QuestionRules.Add(questionRule);
                 }
+                questionnaire.Questions.Add(question);
+                questionnaire.QuestionRules.Add(questionRule);
+            }
 
             return questionnaire;
         }
