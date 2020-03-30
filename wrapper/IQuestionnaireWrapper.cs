@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using questionnaireBackend.models;
 
 namespace questionnaireBackend.wrapper
 {
@@ -7,7 +8,7 @@ namespace questionnaireBackend.wrapper
         void SubstituteAnsweredQuestion(int questionId, string answer);
         List<int> GetAllQuestionsId();
         Questionnaire GetStoreModel();
-        QuestionnaireViewModel GetViewModel();
+        QuestionnaireGetViewModel GetViewModel(string language);
 
         List<AssetQuestionModel> GetAllAnsweredQuestions();
         List<AssetQuestionModel> GetAllUnAnsweredQuestions();

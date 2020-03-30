@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using questionnaireBackend;
+using questionnaireBackend.models;
 using questionnaireBackend.wrapper;
 
 namespace questionnaireBackend.Controllers
@@ -23,30 +24,35 @@ namespace questionnaireBackend.Controllers
 
         // GET: api/Questionnaire
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<QuestionnaireViewModel>>> GetQuestionnaires()
+        public async Task<ActionResult<IEnumerable<QuestionnaireGetViewModel>>> GetQuestionnaires(string language)
         {
             var questionnaires = await _context.Questionnaire.ToListAsync();
             if (questionnaires == null) throw new ArgumentNullException(nameof(questionnaires));
 
             return questionnaires.Select(questionnaire => 
-                new QuestionnaireWrapper(questionnaire).GetViewModel())
+                new QuestionnaireWrapper(questionnaire).GetViewModel(language))
                 .ToList();
         }
 
         // GET: api/Questionnaire/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<QuestionnaireViewModel>> GetQuestionnaire(string id)
+        public async Task<ActionResult<QuestionnaireGetViewModel>> GetQuestionnaire(string id,string language)
         {
-            var questionnaire = await _context.Questionnaire.FindAsync(id);
+            var questionnaire = await _context.Questionnaire
+                .Include(i => i.Questions).ThenInclude(i => i.QuestionTemplate).ThenInclude(i => i.Options)
+                .Include(i => i.Questions).ThenInclude(i => i.QuestionTemplate).ThenInclude(i => i.Validations)
+                .Include(i => i.QuestionRules).ThenInclude(i => i.ExpressionModel)
+                .SingleOrDefaultAsync(x => x.Id == id);
 
 
             if (questionnaire == null)
             {
                 return NotFound();
             }
-            
-            return new QuestionnaireWrapper(questionnaire).GetViewModel() ?? 
-                   throw new ArgumentNullException("id");
+
+            var viewModel = new QuestionnaireWrapper(questionnaire).GetViewModel(language);
+
+            return viewModel;
         }
 
         // PUT: api/Questionnaire/5
@@ -85,7 +91,7 @@ namespace questionnaireBackend.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<Questionnaire>> PostQuestionnaire(QuestionnaireViewModel questionnaire)
+        public async Task<ActionResult<Questionnaire>> PostQuestionnaire(QuestionnairePostViewModel questionnaire)
         {
             var wrappedQuestionnaire = new QuestionnaireWrapper(questionnaire).GetStoreModel() 
                                        ?? throw new ArgumentNullException("questionnaire");
