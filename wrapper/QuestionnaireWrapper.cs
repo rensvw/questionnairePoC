@@ -71,28 +71,41 @@ namespace questionnaireBackend.wrapper
                     }
                 }
 
-                foreach(var template in viewModelQuestion.TemplateOptions){
+                var globalTemplate = viewModelQuestion.TemplateOptions;
+                
+                foreach(var translation in globalTemplate.Translations){
                         // check if question is required
-                        questionRule.Required = template.Required;
+                        questionRule.Required = globalTemplate.Required;
 
                         // Add all templateswith different languages to the template
                         var questionTemplate = new Template
                         {
-                            Description = template.Description,
-                            InputType = template.Type,
-                            Label = template.Label,
-                            Language = template.Language,
-                            Placeholder = template.Placeholder,
-                            Version = template.Version
+                            Description = translation.Description,
+                            InputType = globalTemplate.Type,
+                            Label = translation.Label,
+                            Language = translation.Language,
+                            Placeholder = translation.Placeholder,
+                            Validations = new Collection<Validation>()
                         };
+                        
+                        if(translation.Validation.Messages != null){
+                            foreach(var (key, value) in translation.Validation.Messages){
+                                var expressionModel = new Validation()
+                                {
+                                    Type = key, 
+                                    Message = value
+                                };
+                                questionTemplate.Validations.Add(expressionModel);
+                            }
+                        }
 
-                        if(template.Options != null){
+                        if(translation.MultipleChoiceOptions != null){
                             
-                            questionTemplate.SelectAllOption = template.selectAllOption;
-                            questionTemplate.MultipleChoiceQuestion = template.multiple;
+                            questionTemplate.SelectAllOption = globalTemplate.SelectAllOption;
+                            questionTemplate.AllowedToSelectMultipleOptions = globalTemplate.Multiple;
                             questionTemplate.Options = new Collection<MultipleChoiceOption>();
 
-                            foreach(var option in template.Options){
+                            foreach(var option in translation.MultipleChoiceOptions){
                                 var multipleChoiceOption = new MultipleChoiceOption
                                 {
                                     Value = option.Value, 

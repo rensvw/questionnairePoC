@@ -23,7 +23,6 @@ public class TemplateFormly
     public int Id { get; set; }
     public string Label { get; set; }
     public string Type { get; set; }
-    public string Language { get; set; }
     public string Version { get; set; }
     public string Placeholder { get; set; }
     public string Description { get; set; }
@@ -31,11 +30,22 @@ public class TemplateFormly
 
     public string HideExpression {get; set;}
     public Collection<FormlyOption> Options { get; set; }
-    public bool multiple { get; set; }
-    public string selectAllOption { get; set; }
+    public Collection<TranslationTemplate> Translations { get; set; }
+    public bool Multiple { get; set; }
+    public string SelectAllOption { get; set; }
+}
 
+public class TranslationTemplate
+{
+    public int Id { get; set; }
+
+    public string Label { get; set; }
+    public string Placeholder { get; set; }
+    public string Language { get; set; }
+    public string Description { get; set; }
+    public Collection<FormlyOption> MultipleChoiceOptions { get; set; }
     public FormlyValidation Validation { get; set; }
-    public Dictionary<string,string> ExpressionProperties {get; set;}
+
 }
 
 public class QuestionFormly
@@ -44,8 +54,9 @@ public class QuestionFormly
     public string Key {get; set;}
     public string Type { get; set; }
     public string Version { get; set; }
-    public Collection<TemplateFormly> TemplateOptions {get; set;}
+    public TemplateFormly TemplateOptions {get; set;}
     public string HideExpression {get; set;}
+    
     public FormlyValidation Validation { get; set; }
     public Dictionary<string,string> ExpressionProperties {get; set;}
 }
@@ -59,5 +70,5 @@ public class Messages
 public class FormlyValidation
 {
     public int Id { get; set; }
-    public Messages Messages { get; set; }
+    public Dictionary<string,string> Messages { get; set; }
 }

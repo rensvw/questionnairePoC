@@ -26,7 +26,6 @@ namespace questionnaireBackend
         public bool Required {get; set;}
         public string HideQuestion {get; set;}
         public Collection<ExpressionModel> ExpressionModel {get; set;}
-
     }
 
     public class ExpressionModel
@@ -36,6 +35,15 @@ namespace questionnaireBackend
         public string Id {get; set;}
         public string Key {get; set;}
         public string Expression {get; set;}
+    }
+    
+    public class Validation
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key]
+        public string Id {get; set;}
+        public string Type {get; set;}
+        public string Message {get; set;}
     }
 
     public class Question
@@ -56,14 +64,14 @@ namespace questionnaireBackend
         public string Id {get; set;}
         public string Language {get; set;}
         public string Description {get; set;}
-        public string Version {get; set;}
         public string InputType {get; set;}
         public string Label {get; set;}
         public string Answer {get; set;}
         public string Placeholder {get; set;}
         public string SelectAllOption {get; set;}
-        public bool MultipleChoiceQuestion {get; set;}
+        public bool AllowedToSelectMultipleOptions {get; set;}
         public Collection<MultipleChoiceOption> Options {get; set;}
+        public Collection<Validation> Validations {get; set;}
     }
 
     public class MultipleChoiceOption
