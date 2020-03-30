@@ -44,7 +44,7 @@ namespace questionnaireBackend.wrapper
             };
 
             // create stopre model questions and questionrules
-            foreach(var viewModelQuestion in _questionnaireViewModel.Schema){
+            foreach(var viewModelQuestion in _questionnaireViewModel.Questions){
                 var question = new Question
                 {
                     QuestionTemplate = new Collection<Template>(),
@@ -101,7 +101,7 @@ namespace questionnaireBackend.wrapper
 
                         if(translation.MultipleChoiceOptions != null){
                             
-                            questionTemplate.SelectAllOption = globalTemplate.SelectAllOption;
+                            questionTemplate.SelectAllOption = translation.SelectAllOption;
                             questionTemplate.AllowedToSelectMultipleOptions = globalTemplate.Multiple;
                             questionTemplate.Options = new Collection<MultipleChoiceOption>();
 
